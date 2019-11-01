@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chat',
+    'chat.apps.ChatConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'cfehome.urls'
+ASGI_APPLICATION = 'cfehome.routing.application'
 
 TEMPLATES = [
     {
