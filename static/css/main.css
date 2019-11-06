@@ -1,0 +1,61 @@
+.messenger {
+
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+
+}
+
+.messenger > * {
+    border: 1px solid;
+    padding: 1em .4em;
+}
+
+.messenger > .thread-list {
+
+    display: table-cell;
+    width: 200px;
+}
+
+.messenger > .thread-list > .thread {
+}
+
+.messenger > .thread-list > ul.thread-list {
+    list-style: none;
+    padding: 0;
+}
+.messenger > .thread-list > ul.thread-list li {
+    border-bottom: 1px solid #eee;
+    padding: .4em;
+}
+.messenger > .thread-list > ul.thread-list li.active {
+    font-weight: 700;
+}
+
+.messenger > .current-thread {
+    display: table-cell;
+}
+.messenger > .current-thread > .message {
+    background-color: #eee;
+    margin-bottom: .4em;
+    border-radius: 3px;
+    padding: .2em;
+}
+.messenger > .current-thread > .message > * {
+    display: inline-block;
+}
+.messenger > .current-thread > .message > .time {
+    font-size: .8em;
+    width: 40px;
+}
+.messenger > .current-thread > .message > .user {
+    font-size: .8em;
+    font-weight: 700;
+}
+
+.messenger > .thread-description {
+
+    display: table-cell;
+    width: 200px;
+
+}
