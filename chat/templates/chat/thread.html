@@ -38,14 +38,12 @@ var socket = new ReconnectingWebSocket(endpoint)
 
 socket.onmessage = function(e){
     var chatDataMsg = JSON.parse(e.data)
-    chatHolder.append("<li>" + chatDataMsg.message + " via "+ me +"</li>")
+    chatHolder.append("<li>" + chatDataMsg.message + " via "+ chatDataMsg.username +"</li>")
 }
 socket.onopen = function(e){
     formData.submit(function(event){
         event.preventDefault()
         var msgText = msgInput.val()
-        // chatHolder.append("<li>" + msgText + " via "+ me +"</li>")
-        // var formDataSerialized = formData.serialize()
         var finalData = {
             'message': msgText
         }
