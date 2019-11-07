@@ -3,6 +3,8 @@ from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 from django.views.generic import DetailView, ListView
 
@@ -26,7 +28,11 @@ class ThreadView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_object(self):
         other_username  = self.kwargs.get("username")
-        obj, created    = Thread.objects.get_or_new(self.request.user, other_username)
+
+        other_user      = User.objects.filter(username=other_username)
+        import pprint
+        pprint.pprint(other_user)
+        obj, created    = Thread.objects.get_or_new(self.request.user, other_user)
         if obj == None:
             raise Http404
         return obj
