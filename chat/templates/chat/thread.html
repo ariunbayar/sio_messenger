@@ -16,6 +16,70 @@
 <input type='submit' class='btn btn-primary'/>
 </form>
 
+
+<div class="messenger">
+
+    <div class="thread-list">
+
+        <ul class="thread-list">
+            <li>Thread 1 </li>
+            <li class="active">Thread 2 </li>
+            <li>Thread 3 </li>
+            <li>Thread 4 </li>
+            <li>Thread 5 </li>
+            <li>Thread 6 </li>
+        </ul>
+
+    </div>
+
+    <div class="current-thread">
+        <div class="message">
+            <div class="time">12:00</div>
+            <div class="user">Dorj:</div>
+            <div class="message">Hello world</div>
+        </div>
+        <div class="message">
+            <div class="time">12:05</div>
+            <div class="user">Dorj:</div>
+            <div class="message">Hi</div>
+        </div>
+        <div class="message">
+            <div class="time">12:11</div>
+            <div class="user">Bayar:</div>
+            <div class="message">Hello</div>
+        </div>
+        <div class="message">
+            <div class="time">12:30</div>
+            <div class="user">Bayar:</div>
+            <div class="message">So sa</div>
+        </div>
+    </div>
+
+    <div class="thread-description">
+
+        <div class="thread-name">
+            <h2> Thread name </h2>
+        </div>
+
+        <div class="thread-is-private">Is private?</div>
+
+        <div class="thread-password">
+            Change thread password:
+            <input type="text"/>
+        </div>
+
+        User list:
+        <ul class="user-list">
+            <li>User 1</li>
+            <li>User 2</li>
+            <li>User 3</li>
+            <li>User 4</li>
+        </ul>
+    </div>
+
+</div>
+
+
 {% endblock %}
 
 {% block script %}
