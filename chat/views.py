@@ -29,7 +29,7 @@ class ThreadView(LoginRequiredMixin, FormMixin, DetailView):
     def get_object(self):
         other_username  = self.kwargs.get("username")
 
-        other_user      = User.objects.filter(username=other_username)
+        other_user      = User.objects.get(username=other_username)
         import pprint
         pprint.pprint(other_user)
         obj, created    = Thread.objects.get_or_new(self.request.user, other_user)

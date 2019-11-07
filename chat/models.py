@@ -2,7 +2,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Count
 
 
 class ThreadManager(models.Manager):
@@ -19,22 +19,23 @@ class ThreadManager(models.Manager):
         pprint.pprint(other_user)
         if user == other_user:
             return None
-        qlookup1 = Q(owner=user) & Q(users=other_user)
-        qs = self.get_queryset().filter(qlookup1).distinct()
-        pprint.pprint(qs)
+        
+        qs = self.get_queryset()
+        qs = qs.filter(users__in=[other_user, user])
+        qs = qs.filter(users_count=2)
+
+        print(qs.count())
         if qs.count() == 1:
             return qs.first(), False
         elif qs.count() > 1:
-            return qs.order_by('timestamp').first(), False
+            return qs.order_by('updated_at').first(), False
         else:
-            Klass = user.__class__
-            user2 = Klass.objects.get(id=other_user__id)
-            if user != user2:
+            if user != other_user:
                 obj = self.model(
                         owner=user,
-                        second=user2
                     )
                 obj.save()
+                obj.add_user([other_user, user])
                 return obj, True
             return None, False
 
@@ -42,6 +43,7 @@ class ThreadManager(models.Manager):
 class Thread(models.Model):
     owner           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_owner')
     users           = models.ManyToManyField(User, related_name='chat_users')
+    users_count     = models.IntegerField(default=0) 
     name            = models.CharField(max_length=200, null=True)
     password        = models.CharField(max_length=50, null=True)
     is_private      = models.BooleanField(default=False)
@@ -53,9 +55,11 @@ class Thread(models.Model):
 
     objects      = ThreadManager()
 
+
     @property
     def room_group_name(self):
         return f'chat_{self.id}'
+
 
     def broadcast(self, msg=None):
         if msg is not None:
@@ -63,8 +67,15 @@ class Thread(models.Model):
             return True
         return False
 
+
     def thread_list_by_user(self, user):
         return self.objects.filter(users=user)
+
+
+    def add_user(self, users):
+        self.users.add(*users)
+        self.users_count = self.users.count()
+        self.save()
 
 
 class ChatMessage(models.Model):
