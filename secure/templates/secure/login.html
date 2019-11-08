@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<form method="POST" action="" class="form">{% csrf_token %}
+
+    {% if error %}
+    <div class="alert alert-warning" role="alert">
+        {{error}}
+    </div>
+    {% endif %}
+
+
+    <div class="form-group">
+        <label for="id_username"> Нэвтрэх нэр: </label>
+        <input type="text" class="form-control" name="username" id="id_username" value="{{ username }}"/>
+    </div>
+
+    <div class="form-group">
+        <label for="id_password"> Нууц үг: </label>
+        <input type="text" class="form-control" name="password" id="id_password"/>
+    </div>
+
+    <button type="submit" class="btn btn-primary"> Нэвтрэх </button>
+
+</form>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+var el_username = document.querySelector('#id_username');
+document.querySelector('input[name="' + (el_username.value ? 'password' : 'username') + '"]').focus();
+</script>
+{% endblock %}

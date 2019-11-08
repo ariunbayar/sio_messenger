@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'secure.apps.SecureConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,6 +54,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'cfehome.urls'
 ASGI_APPLICATION = 'cfehome.routing.application'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'secure-login'
 
 TEMPLATES = [
     {
