@@ -55,6 +55,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'cfehome.urls'
 ASGI_APPLICATION = 'cfehome.routing.application'
 
+LOGIN_URL = 'secure-login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'secure-login'
 
