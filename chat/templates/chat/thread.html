@@ -22,12 +22,9 @@
     <div class="thread-list">
 
         <ul class="thread-list">
-            <li>Thread 1 </li>
-            <li class="active">Thread 2 </li>
-            <li>Thread 3 </li>
-            <li>Thread 4 </li>
-            <li>Thread 5 </li>
-            <li>Thread 6 </li>
+            {% for thread in threadListByUser %}
+                <li> {{ thread.id }} </li>
+            {% endfor %}
         </ul>
 
     </div>

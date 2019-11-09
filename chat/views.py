@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from django.views.generic import DetailView, ListView
@@ -15,8 +16,20 @@ from .models import Thread, ChatMessage
 class InboxView(LoginRequiredMixin, ListView):
     template_name = 'chat/inbox.html'
     def get_queryset(self):
-        return Thread.objects.by_user(self.request.user)
+        return Thread.objects.filter(users=self.request.user)
 
+@login_required
+def ThreadView1(request, username):
+    import pprint 
+    pprint.pprint(request.user)
+
+    threadListByUser = Thread.objects.filter(users=request.user)
+    context = {
+
+        'threadListByUser': threadListByUser,
+
+    }
+    return render(request, 'chat/thread.html', context)
 
 class ThreadView(LoginRequiredMixin, FormMixin, DetailView):
     template_name = 'chat/thread.html'
