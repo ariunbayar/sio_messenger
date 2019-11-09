@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 <h3>Thread for {% if user != object.first %}{{ object.first }}{% else %}{{ object.second }}{% endif %}</h3>
 <ul id='chat-items'>
@@ -20,6 +22,8 @@
 <div class="messenger">
 
     <div class="thread-list">
+
+        <button class="btn btn-secondary create-thread" type="button"> + </button>
 
         <ul class="thread-list">
             {% for thread in threadListByUser %}
@@ -122,4 +126,5 @@ socket.onclose = function(e){
 }
 
 </script>
+<script src="{% static "js/messenger.js" %}"></script>
 {% endblock %}
