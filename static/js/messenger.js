@@ -1,5 +1,10 @@
 (function(){
 
+    let formData = $("#form");
+    let msgInput = $('#chatmessage');
+    let chatHolder = $("#chat-messages");
+    let socket = null;
+
     let threadItems = document.querySelectorAll('.messenger > .thread-list > ul.thread-list > li');
 
     function activateThreadItem(threadItems, threadItem) {
@@ -12,25 +17,28 @@
         threadItem.addEventListener('click', (e) => {
             activateThreadItem(threadItems, threadItem);
             let thread_id = threadItem.getAttribute('data-thread-id');
+            closeCurrentSocket();
             initThread(thread_id);
         });
 
     });
 
+    function getEndpointFor(thread_id) {
+        let loc = window.location;
+        let wsStart = loc.protocol == 'https' ? 'wss://' : 'ws://';
+        return wsStart + loc.host + '/' + thread_id + '/';
+    }
 
-    let loc = window.location;
-    let formData = $("#form");
-    let msgInput = $('#chatmessage');
-    let chatHolder = $("#chat-messages");
-    let wsStart = 'ws://'
-    if (loc.protocol == 'https'){
-        wsStart = 'wss://'
+    function closeCurrentSocket() {
+        if (socket === null) return;
+        socket.close();
+        socket = null;
     }
 
     function initThread(thread_id){
 
-        var endpoint = wsStart + loc.host + '/' + thread_id + '/'
-        var socket = new ReconnectingWebSocket(endpoint)
+        let endpoint = getEndpointFor(thread_id);
+        socket = new ReconnectingWebSocket(endpoint);
 
         socket.onmessage = function(e){
             var chatDataMsg = JSON.parse(e.data)
