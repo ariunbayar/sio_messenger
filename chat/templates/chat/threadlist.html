@@ -10,7 +10,7 @@
 
         <ul class="thread-list">
             {% for thread in threadListByUser %}
-                <li onclick="InitThread({{ thread.id }})"> {{ thread.id }} </li>
+                <li data-thread-id="{{ thread.id }}"> {{ thread.id }} </li>
             {% endfor %}
         </ul>
 
@@ -18,16 +18,10 @@
 
     <div class="current-thread">
         <div id="chat-messages">
-            <div class="message">
-                <div class="time">12:00</div>
-                <div class="user">Dorj:</div>
-                <div class="message">Hello world</div>
-            </div>
         </div>
         <form id="form" method='POST'>
-		    <input type="hidden" id="myUsername" value="{{ user.username }}">
-			<input type="text" id="chatmessage" >    
-		    <input type='submit' id="chatsend" class='btn btn-primary' value="send"/>
+            <input type="text" id="chatmessage"/>
+            <input type='submit' id="chatsend" class='btn btn-primary' value="send"/>
         </form>
     </div>
 
