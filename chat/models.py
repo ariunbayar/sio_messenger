@@ -8,17 +8,12 @@ from django.db.models import Q, Count
 class ThreadManager(models.Manager):
 
     def get_or_new(self, user, other_user): # get_or_create
-        import pprint
-        pprint.pprint(user)
-        pprint.pprint(other_user)
         if user == other_user:
             return None
-        
-        qs = self.get_queryset()
-        qs = qs.filter(users__in=[other_user, user])
+        lookupByUser = Q(users=user) & Q(users=other_user)
+        qs = self.get_queryset().filter(lookupByUser)
         qs = qs.filter(users_count=2)
 
-        print(qs.count())
         if qs.count() == 1:
             return qs.first(), False
         elif qs.count() > 1:
