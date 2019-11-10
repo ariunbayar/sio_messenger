@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
@@ -13,6 +13,7 @@ from .forms import ComposeForm
 from .models import Thread, ChatMessage
 
 
+@login_required
 def threadlist(request):
     threadListByUser = Thread.objects.filter(users=request.user)
     context = {
