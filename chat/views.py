@@ -19,7 +19,7 @@ class InboxView(LoginRequiredMixin, ListView):
         return Thread.objects.filter(users=self.request.user)
 
 @login_required
-def ThreadView1(request, username):
+def ThreadView(request, username):
     other_user = User.objects.get(username=username)
     threadListByUser = Thread.objects.filter(users=request.user)
     form = ComposeForm(request.POST or None)
