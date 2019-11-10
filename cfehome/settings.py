@@ -56,7 +56,7 @@ ROOT_URLCONF = 'cfehome.urls'
 ASGI_APPLICATION = 'cfehome.routing.application'
 
 LOGIN_URL = 'secure-login'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'threadlist'
 LOGOUT_REDIRECT_URL = 'secure-login'
 
 TEMPLATES = [

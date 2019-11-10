@@ -17,10 +17,9 @@ def threadlist(request):
     threadListByUser = Thread.objects.filter(users=request.user)
     context = {
         'threadListByUser': threadListByUser,
-        # 'form': form,
-
     }
     return render(request, 'chat/threadlist.html',context)
+
 
 @login_required
 def threadView(request, username):
@@ -31,7 +30,7 @@ def threadView(request, username):
         if form.is_valid():
             thread, created  =  Thread.objects.get_or_new(request.user, other_user)
             message = form.cleaned_data.get("message")
-            ChatMessage.objects.create(user=request.user, thread=thread, message=message)    
+            ChatMessage.objects.create(user=request.user, thread=thread, message=message)
 
     allChatmessage = ChatMessage.objects.filter(user)
 
