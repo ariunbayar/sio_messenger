@@ -13,13 +13,17 @@ from .forms import ComposeForm
 from .models import Thread, ChatMessage
 
 
-class InboxView(LoginRequiredMixin, ListView):
-    template_name = 'chat/inbox.html'
-    def get_queryset(self):
-        return Thread.objects.filter(users=self.request.user)
+def threadlist(request):
+    threadListByUser = Thread.objects.filter(users=request.user)
+    context = {
+        'threadListByUser': threadListByUser,
+        # 'form': form,
+
+    }
+    return render(request, 'chat/threadlist.html',context)
 
 @login_required
-def ThreadView(request, username):
+def threadView(request, username):
     other_user = User.objects.get(username=username)
     threadListByUser = Thread.objects.filter(users=request.user)
     form = ComposeForm(request.POST or None)
@@ -28,6 +32,8 @@ def ThreadView(request, username):
             thread, created  =  Thread.objects.get_or_new(request.user, other_user)
             message = form.cleaned_data.get("message")
             ChatMessage.objects.create(user=request.user, thread=thread, message=message)    
+
+    allChatmessage = ChatMessage.objects.filter(user)
 
     context = {
 

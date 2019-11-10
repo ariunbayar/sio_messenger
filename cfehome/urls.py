@@ -20,9 +20,8 @@ import secure.views
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name="home.html")),
     path('admin/', admin.site.urls),
-    path('messages/', include('chat.urls')),
+    path('', include('chat.urls')),
 
     path('secure/login/', secure.views.login, name='secure-login'),
     path('secure/logout/', secure.views.logout, name='secure-logout'),
