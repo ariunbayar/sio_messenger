@@ -30,6 +30,8 @@
 }
 .messenger > .thread-list > ul.thread-list li.active {
     font-weight: 700;
+    background-color: #eee;
+    border-radius: 3px;
 }
 
 .messenger > .current-thread {

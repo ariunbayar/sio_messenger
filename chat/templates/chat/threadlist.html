@@ -10,7 +10,7 @@
 
         <ul class="thread-list">
             {% for thread in threadListByUser %}
-                <li onclick="InitThread({{ thread.id }})"> {{ thread.id }} </li>
+                <li data-thread-id="{{ thread.id }}"> {{ thread.id }} </li>
             {% endfor %}
         </ul>
 
