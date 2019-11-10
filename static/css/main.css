@@ -35,20 +35,24 @@
 .messenger > .current-thread {
     display: table-cell;
 }
-.messenger > .current-thread > .message {
+.messenger > .current-thread > #chat-messages {
+    overflow-y: auto;
+    max-height: 600px;
+}
+.messenger > .current-thread > #chat-messages > .message {
     background-color: #eee;
     margin-bottom: .4em;
     border-radius: 3px;
     padding: .2em;
 }
-.messenger > .current-thread > .message > * {
+.messenger > .current-thread > #chat-messages > .message > * {
     display: inline-block;
 }
-.messenger > .current-thread > .message > .time {
+.messenger > .current-thread > #chat-messages > .message > .time {
     font-size: .8em;
     width: 40px;
 }
-.messenger > .current-thread > .message > .user {
+.messenger > .current-thread > #chat-messages > .message > .user {
     font-size: .8em;
     font-weight: 700;
 }
