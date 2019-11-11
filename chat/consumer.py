@@ -87,9 +87,24 @@ class ThreadConsumer(AsyncConsumer):
             chat_room,
             self.channel_name
         )
+        thread_messages = ChatMessage.objects.filter(thread=self.thread_obj)
+        
         await self.send({
             "type": "websocket.accept"
         })
+
+        for message in thread_messages:
+            myResponse = {
+                'message': message.message,
+                'username': message.user.username
+            }
+            await self.channel_layer.group_send(
+                self.chat_room,
+                {
+                    "type": "chat_message",
+                    "text": json.dumps(myResponse)
+                }
+            )
 
 
     async def websocket_receive(self, event):
@@ -117,6 +132,14 @@ class ThreadConsumer(AsyncConsumer):
                 }
             )
         # {'type': 'websocket.receive', 'text': '{"message":"abc"}'}
+
+
+    async def thread_messages(self, event):
+        for message in event['thread_messages']:
+            await self.send({
+                "type": "websocket.send",
+                "text": event['text']
+            })
 
 
     async def chat_message(self, event):
