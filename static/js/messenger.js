@@ -81,7 +81,6 @@
 
     function closeCurrentSocket() {
         if (socket === null) return;
-        socket.automaticOpen = false;
         socket.close();
         socket = null;
     }
