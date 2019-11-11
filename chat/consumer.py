@@ -20,7 +20,7 @@ class ThreadConsumer(AsyncConsumer):
             self.channel_name
         )
         thread_messages = ChatMessage.objects.filter(thread=self.thread_obj)
-        
+
         await self.send({
             "type": "websocket.accept"
         })

@@ -32,7 +32,7 @@ class ThreadManager(models.Manager):
 class Thread(models.Model):
     owner           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_owner')
     users           = models.ManyToManyField(User, related_name='chat_users')
-    users_count     = models.IntegerField(default=0) 
+    users_count     = models.IntegerField(default=0)
     name            = models.CharField(max_length=200, null=True)
     password        = models.CharField(max_length=50, null=True)
     is_private      = models.BooleanField(default=False)

@@ -9,7 +9,7 @@ class ChatMessage(admin.TabularInline):
 class ThreadAdmin(admin.ModelAdmin):
     inlines = [ChatMessage]
     class Meta:
-        model = Thread 
+        model = Thread
 
 
 admin.site.register(Thread, ThreadAdmin)
