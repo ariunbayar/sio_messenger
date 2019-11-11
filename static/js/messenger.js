@@ -41,12 +41,13 @@
         socket = new ReconnectingWebSocket(endpoint);
 
         socket.onmessage = function(e){
-            var chatDataMsg = JSON.parse(e.data)
+            var chatDataMsg = JSON.parse(e.data);
             chatHolder.append('<div class="message">' +
             '    <div class="time">12:00</div>' +
             '    <div class="user">' + chatDataMsg.username + ':</div>' +
             '    <div class="message">'+ chatDataMsg.message +'</div>' +
-            '</div>')
+            '</div>');
+            chatHolder.stop().animate({ scrollTop: chatHolder.prop('scrollHeight') });
         }
         socket.onopen = function(e){
             formData.submit(function(event){
