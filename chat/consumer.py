@@ -25,19 +25,6 @@ class ThreadConsumer(AsyncConsumer):
             "type": "websocket.accept"
         })
 
-        for message in thread_messages:
-            myResponse = {
-                'message': message.message,
-                'username': message.user.username
-            }
-            await self.channel_layer.group_send(
-                self.chat_room,
-                {
-                    "type": "chat_message",
-                    "text": json.dumps(myResponse)
-                }
-            )
-
 
     async def websocket_receive(self, event):
         #when a message is received from the websocket

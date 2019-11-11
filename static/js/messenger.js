@@ -17,8 +17,30 @@
         threadItem.addEventListener('click', (e) => {
             activateThreadItem(threadItems, threadItem);
             let thread_id = threadItem.getAttribute('data-thread-id');
+            let thread_url = threadItem.getAttribute('data-thread-history');
             closeCurrentSocket();
             initThread(thread_id);
+
+            // var div = document.querySelectorAll('#message');
+            chatHolder.html('')
+
+            $.ajax({
+                url: thread_url,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.thread_messages) {
+                        data.thread_messages.forEach( function(message){
+                            chatHolder.append('<div class="message" id="message">' +
+                            '    <div class="time">' + message['date'] + '</div>' +
+                            '    <div class="user">' + message['user'] + ':</div>' +
+                            '    <div class="message">'+ message['message'] +'</div>' +
+                            '</div>')
+                            chatHolder.stop().animate({ scrollTop: chatHolder.prop('scrollHeight') })
+                        });
+
+                    }
+                }
+            })
         });
 
     });

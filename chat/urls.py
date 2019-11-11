@@ -3,8 +3,7 @@ from django.conf.urls import url
 
 from . import views
 
-
-app_name = 'chat'
 urlpatterns = [
     path("", views.threadlist, name="threadlist"),
+    path("thread_messages/<int:thread_id>/", views.thread_messages, name="thread-messages"),
 ]
