@@ -1,26 +1,50 @@
 (function(){
 
+    let ThreadList = (() => {
+
+        function ThreadList(child_elements, fn_thread_selected) {
+
+            this.active_child_element = null;
+
+            this.child_elements = {};
+
+            this.on_thread_selected = fn_thread_selected;
+
+            document.querySelectorAll(child_elements).forEach((child_element) => {
+
+                let thread_id = child_element.getAttribute('data-thread-id');
+                this.child_elements[thread_id] = child_element;
+
+                child_element.addEventListener('click', (e) => {
+                    this.activate(thread_id);
+                });
+
+            });
+        }
+
+        ThreadList.prototype.activate = function (thread_id) {
+            let child_element = this.child_elements[thread_id];
+            if (this.active_child_element) {
+                this.active_child_element.classList.remove('active');
+            }
+            child_element.classList.add('active');
+            this.active_child_element = child_element;
+
+            this.on_thread_selected(thread_id);
+        };
+
+        return ThreadList;
+
+    })();
+
     let formData = $("#form");
     let msgInput = $('#chatmessage');
     let chatHolder = $("#chat-messages");
     let socket = null;
 
-    let threadItems = document.querySelectorAll('.messenger > .thread-list > ul.thread-list > li');
-
-    function activateThreadItem(threadItems, threadItem) {
-        threadItems.forEach((item) => item.classList.remove('active'));
-        threadItem.classList.add('active');
-    }
-
-    threadItems.forEach((threadItem) => {
-
-        threadItem.addEventListener('click', (e) => {
-            activateThreadItem(threadItems, threadItem);
-            let thread_id = threadItem.getAttribute('data-thread-id');
-            closeCurrentSocket();
-            initThread(thread_id);
-        });
-
+    let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id) => {
+        closeCurrentSocket();
+        initThread(thread_id);
     });
 
     function getEndpointFor(thread_id) {
