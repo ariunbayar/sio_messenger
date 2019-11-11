@@ -10,7 +10,7 @@
 
         <ul class="thread-list">
             {% for thread in threadListByUser %}
-                <li data-thread-id="{{ thread.id }}"> {{ thread.id }} </li>
+                <li data-thread-id="{{ thread.id }}" data-thread-history="{% url "thread-messages" thread.id %}"> {{ thread.id }} </li>
             {% endfor %}
         </ul>
 

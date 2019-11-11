@@ -1,5 +1,6 @@
+import datetime
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
@@ -12,6 +13,26 @@ from django.views.generic import DetailView, ListView
 from .forms import ComposeForm
 from .models import Thread, ChatMessage
 
+
+@login_required
+def thread_messages(request, thread_id):
+    thread_messages = ChatMessage.objects.filter(thread_id=thread_id)
+
+    json_message = []
+
+    for message in thread_messages:
+        context = {
+            'message': message.message,
+            'date': message.timestamp.date(),
+            'user': message.user.username,
+        }
+        json_message.append(context)
+
+    data = {
+        'thread_messages': json_message
+    }
+
+    return JsonResponse(data)
 
 @login_required
 def threadlist(request):
@@ -42,4 +63,3 @@ def threadView(request, username):
 
     }
     return render(request, 'chat/thread.html', context)
-

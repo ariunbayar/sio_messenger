@@ -8,4 +8,5 @@ urlpatterns = [
     path('logout/', secure.views.logout, name='secure-logout'),
 
     path('', include('chat.urls')),
+
 ]

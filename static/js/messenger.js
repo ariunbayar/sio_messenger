@@ -23,14 +23,22 @@
         }
 
         ThreadList.prototype.activate = function (thread_id) {
+
             let child_element = this.child_elements[thread_id];
+
+            if (this.active_child_element === child_element) {
+                return;
+            }
+
             if (this.active_child_element) {
                 this.active_child_element.classList.remove('active');
             }
             child_element.classList.add('active');
             this.active_child_element = child_element;
 
-            this.on_thread_selected(thread_id);
+            let thread_url = child_element.getAttribute('data-thread-history');
+
+            this.on_thread_selected(thread_id, thread_url);
         };
 
         return ThreadList;
@@ -42,9 +50,27 @@
     let chatHolder = $("#chat-messages");
     let socket = null;
 
-    let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id) => {
+    let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id, thread_url) => {
         closeCurrentSocket();
         initThread(thread_id);
+
+        $.ajax({
+            url: thread_url,
+            dataType: 'json',
+            success: function (data) {
+                if (data.thread_messages) {
+                    data.thread_messages.forEach( function(message){
+                        chatHolder.append('<div class="message" id="message">' +
+                        '    <div class="time">' + message['date'] + '</div>' +
+                        '    <div class="user">' + message['user'] + ':</div>' +
+                        '    <div class="message">'+ message['message'] +'</div>' +
+                        '</div>')
+                        chatHolder.stop().animate({ scrollTop: chatHolder.prop('scrollHeight') })
+                    });
+
+                }
+            }
+        })
     });
 
     function getEndpointFor(thread_id) {
@@ -55,11 +81,14 @@
 
     function closeCurrentSocket() {
         if (socket === null) return;
+        socket.automaticOpen = false;
         socket.close();
         socket = null;
     }
 
     function initThread(thread_id){
+
+        chatHolder.html('');
 
         let endpoint = getEndpointFor(thread_id);
         socket = new ReconnectingWebSocket(endpoint);
