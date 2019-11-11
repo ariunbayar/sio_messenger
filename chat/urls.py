@@ -7,5 +7,4 @@ from . import views
 app_name = 'chat'
 urlpatterns = [
     path("", views.threadlist, name="threadlist"),
-    url(r"^(?P<username>[\w.@+-]+)/$", views.threadView, name="ThreadView"),
 ]
