@@ -90,3 +90,74 @@ class ThreadConsumer(AsyncConsumer):
     def create_chat_message(self, me, msg):
         thread_obj  = self.thread_obj
         return ChatMessage.objects.create(thread=thread_obj, user=me, message=msg)
+
+
+class UserConsumer(AsyncConsumer):
+
+    async def websocket_connect(self, event):
+
+        user = self.scope['user']
+
+        threads = await self.get_user_threads(user)
+
+        self.threads = threads
+
+        for thread in threads:
+            await self.channel_layer.group_add(
+                thread.get_chat_room_name(),
+                self.channel_name
+            )
+
+        await self.send({
+            "type": "websocket.accept"
+        })
+
+    async def websocket_receive(self, event):
+
+        front_text = event.get('text', None)
+        if front_text is not None:
+            loaded_dict_data = loaded_data = json.loads(front_text)
+            msg = loaded_dict_data.get('message')
+            user = self.scope['user']
+            username = 'default'
+            if user.is_authenticated:
+                username = user.username
+            myResponse = {
+                'message': msg,
+                'username': username
+            }
+            await self.create_chat_message(user, msg)
+            # broadcast the message event to be sent
+            await self.channel_layer.group_send(
+                self.chat_room,
+                {
+                    "type": "chat_message",
+                    "text": json.dumps(myResponse)
+                }
+            )
+
+    async def chat_message(self, event):
+        # send the actual message
+        await self.send({
+            "type": "websocket.send",
+            "text": event['text']
+        })
+
+    async def websocket_disconnect(self, event):
+
+        for thread in self.threads:
+            await self.channel_layer.group_discard(
+                thread.get_chat_room_name(),
+                self.channel_name
+            )
+
+        raise StopConsumer()
+
+    @database_sync_to_async
+    def get_user_threads(self, user):
+        return Thread.objects.filter(users=user)
+
+    @database_sync_to_async
+    def create_chat_message(self, me, msg):
+        thread_obj  = self.thread_obj
+        return ChatMessage.objects.create(thread=thread_obj, user=me, message=msg)

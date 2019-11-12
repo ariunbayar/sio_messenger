@@ -5,6 +5,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator, OriginValidator
 
 from chat.consumer import ThreadConsumer
+from chat.consumer import UserConsumer
 
 
 application = ProtocolTypeRouter({
@@ -12,6 +13,7 @@ application = ProtocolTypeRouter({
         AuthMiddlewareStack(
             URLRouter(
                 [
+                    path("", UserConsumer),
                     path("<int:thread_id>/", ThreadConsumer),
                 ]
             )

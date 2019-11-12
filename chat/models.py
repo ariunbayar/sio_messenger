@@ -40,10 +40,7 @@ class Thread(models.Model):
     updated_at      = models.DateTimeField(auto_now=True)
     created_at      = models.DateTimeField(auto_now_add=True)
 
-
-
     objects      = ThreadManager()
-
 
     @property
     def room_group_name(self):
@@ -65,6 +62,9 @@ class Thread(models.Model):
         self.users.add(*users)
         self.users_count = self.users.count()
         self.save()
+
+    def get_chat_room_name(self):
+        return "thread_{}".format(self.id)
 
 
 class ChatMessage(models.Model):
