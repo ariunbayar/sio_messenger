@@ -209,10 +209,23 @@ class UserConsumer(AsyncConsumer):
     async def websocket_receive(self, event):
 
         """
-        Expects following actions
+        When sending message to a thread:
+        {
+            action: 'thread_message'
+            params: {
+                thread_id: <thread_id>,
+                message: <message>,
+            }
+        }
 
-        thread_message
-            chat_messages: {<thread_id>: [{message: <message>, username: <username>, datetime: <datetime>}, ...], ...}
+        When sending message to specific user:
+        {
+            action: 'user_message',
+            params: {
+                user_id: <user_id_dst>,
+                message: <message>,
+            }
+        }
 
         """
 
