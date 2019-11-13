@@ -250,6 +250,10 @@ class UserConsumer(AsyncConsumer):
             "text": event['text']
         })
 
+    @database_sync_to_async
+    def clear_user_channel(self, channel_name):
+        UserChannel.objects.filter(channel_name=channel_name).delete()
+
     async def websocket_disconnect(self, event):
 
         for thread in self.threads:
@@ -257,6 +261,8 @@ class UserConsumer(AsyncConsumer):
                 thread.get_chat_room_name(),
                 self.channel_name
             )
+
+        await clear_user_channel(self.channel_name)
 
         raise StopConsumer()
 
