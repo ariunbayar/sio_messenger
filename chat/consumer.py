@@ -262,7 +262,7 @@ class UserConsumer(AsyncConsumer):
                 self.channel_name
             )
 
-        await clear_user_channel(self.channel_name)
+        await self.clear_user_channel(self.channel_name)
 
         raise StopConsumer()
 
