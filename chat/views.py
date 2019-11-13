@@ -23,8 +23,8 @@ def thread_messages(request, thread_id):
     for message in thread_messages:
         context = {
             'message': message.message,
-            'date': message.timestamp.date(),
-            'user': message.user.username,
+            'timestamp': int(message.timestamp.timestamp()),
+            'username': message.user.username,
         }
         json_message.append(context)
 

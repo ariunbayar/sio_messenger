@@ -126,7 +126,7 @@ class UserConsumer(AsyncConsumer):
             'thread_id': chat_message.thread.pk,
             'username': chat_message.user.username,
             'message' : chat_message.message,
-            'datetime': chat_message.timestamp.timestamp(),
+            'timestamp': int(chat_message.timestamp.timestamp()),
         }
 
         await self.channel_layer.group_send(
@@ -251,19 +251,17 @@ class UserConsumer(AsyncConsumer):
         })
 
     @database_sync_to_async
-    def clear_user_channel(self, channel_name):
+    async def clear_user_channel(self, channel_name):
         UserChannel.objects.filter(channel_name=channel_name).delete()
-
-    async def websocket_disconnect(self, event):
-
         for thread in self.threads:
             await self.channel_layer.group_discard(
                 thread.get_chat_room_name(),
                 self.channel_name
             )
 
-        await self.clear_user_channel(self.channel_name)
+    async def websocket_disconnect(self, event):
 
+        await self.clear_user_channel(self.channel_name)
         raise StopConsumer()
 
     async def get_authenticated_user(self):
