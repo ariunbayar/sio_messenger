@@ -78,5 +78,5 @@ class UserChannel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     # Length is 30, according to channel_redis.core.RedisChannelLayer.new_channel
     # 64 = 30 + 34. We reserved 34 char for later use.
-    channel_name = models.CharField(max_length=64)
+    channel_name = models.CharField(max_length=64, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
