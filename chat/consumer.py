@@ -102,7 +102,7 @@ class UserConsumer(AsyncConsumer):
 
     async def websocket_connect(self, event):
 
-        user = await get_authenticated_user()
+        user = await self.get_authenticated_user()
 
         threads = await self.get_threads_by_user(user)
 
@@ -120,19 +120,17 @@ class UserConsumer(AsyncConsumer):
             "type": "websocket.accept"
         })
 
-    async def broadcast_chat_message(chat_messages):
+    async def broadcast_chat_message(self, chat_message):
 
-        message_pack = defaultdict(list)
-
-        for chat_message in chat_messages:
-            message_pack[chat_message.tread_id].append({
-                    'username': chat_message.user.username,
-                    'message' : chat_message.message,
-                    'datetime': chat_message.timestamp(),
-                })
+        message_pack = {
+            'thread_id': chat_message.thread.pk,
+            'username': chat_message.user.username,
+            'message' : chat_message.message,
+            'datetime': chat_message.timestamp.timestamp(),
+        }
 
         await self.channel_layer.group_send(
-                thread.get_chat_room_name(),
+                chat_message.thread.get_chat_room_name(),
                 {
                     "type": "chat_message",
                     "text": json.dumps(message_pack)
@@ -146,8 +144,8 @@ class UserConsumer(AsyncConsumer):
                 message: <message>,
             }
         """
-        thread_id = data.get('thread_id')
-        message = data.get('message')
+        thread_id = chat_messages.get('thread_id')
+        message = chat_messages.get('message')
         if not message or not thread_id:
             # TODO must not allow empty thread_id, message. Respond via socket or notify admin?
             return
@@ -159,7 +157,7 @@ class UserConsumer(AsyncConsumer):
             return
 
         chat_message = await self.create_chat_message(thread, user_src, message)
-        await self.broadcast_chat_message([chat_message])
+        await self.broadcast_chat_message(chat_message)
 
     @database_sync_to_async
     def get_user_channel_names(self, user_id, expiry=86400):
@@ -204,7 +202,7 @@ class UserConsumer(AsyncConsumer):
             )
 
         chat_message = await self.create_chat_message(thread, user_src, message)
-        await self.broadcast_chat_message([chat_message])
+        await self.broadcast_chat_message(chat_message)
 
     async def websocket_receive(self, event):
 
@@ -229,7 +227,7 @@ class UserConsumer(AsyncConsumer):
 
         """
 
-        user = await get_authenticated_user()
+        user = await self.get_authenticated_user()
 
         try:
             data_raw = event.get('text', None)

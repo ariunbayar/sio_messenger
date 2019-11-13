@@ -50,8 +50,45 @@
     let chatHolder = $("#chat-messages");
     let socket = null;
 
+    let endpoint = getEndpointFor();
+    socket = new ReconnectingWebSocket(endpoint);
+
+    socket.onopen = function(e){
+        console.log('open', e)
+    }
+
+    function getEndpointFor() {
+        let loc = window.location;
+        let wsStart = loc.protocol == 'https' ? 'wss://' : 'ws://';
+        return wsStart + loc.host + '/';
+    }
+
+    // {
+    //     action: 'thread_message'
+    //     params: {
+    //         thread_id: <thread_id>,
+    //         message: <message>,
+    //     }
+    // }
+
+    // formData.submit(function(event){
+    //     event.preventDefault()
+    //     var msgText = msgInput.val()
+    //     var finalData = {
+    //         'action': 'thread_message'
+    //         'params': {
+    //             'thread_id': ,
+    //             'message': msgText,
+    //         }
+    //     }
+    //
+    //     socket.send(JSON.stringify(finalData))
+    //     msgInput.val('')
+    //     formData[0].reset()
+    // })
+
     let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id, thread_url) => {
-        closeCurrentSocket();
+
         initThread(thread_id);
 
         $.ajax({
@@ -71,26 +108,29 @@
                 }
             }
         })
+
+        formData.submit(function(event){
+            event.preventDefault()
+            var msgText = msgInput.val()
+            var data = {
+                'action': 'thread_message',
+                'params': {
+                    'thread_id': thread_id,
+                    'message': msgText,
+                },
+            }
+
+            socket.send(JSON.stringify(data))
+            msgInput.val('')
+            formData[0].reset()
+        })
     });
-
-    function getEndpointFor(thread_id) {
-        let loc = window.location;
-        let wsStart = loc.protocol == 'https' ? 'wss://' : 'ws://';
-        return wsStart + loc.host + '/' + thread_id + '/';
-    }
-
-    function closeCurrentSocket() {
-        if (socket === null) return;
-        socket.close();
-        socket = null;
-    }
 
     function initThread(thread_id){
 
+        console.log(thread_id);
+        console.log(socket);
         chatHolder.html('');
-
-        let endpoint = getEndpointFor(thread_id);
-        socket = new ReconnectingWebSocket(endpoint);
 
         socket.onmessage = function(e){
             var chatDataMsg = JSON.parse(e.data);
@@ -100,9 +140,6 @@
             '    <div class="message">'+ chatDataMsg.message +'</div>' +
             '</div>');
             chatHolder.stop().animate({ scrollTop: chatHolder.prop('scrollHeight') });
-        }
-        socket.onopen = function(e){
-            
         }
         socket.onerror = function(e){
             console.log("error", e)
