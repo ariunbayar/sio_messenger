@@ -1,4 +1,4 @@
-(function(){
+(function(Utils){
 
     let ThreadList = (() => {
 
@@ -82,21 +82,40 @@
         }
 
         ChatBox.prototype.clearMessageList = function clearMessageList() {
-            this.message_list.innerHTML = '';
+            while (this.message_list.firstChild) {
+                this.message_list.removeChild(this.message_list.firstChild);
+            }
         }
 
         ChatBox.prototype.addMessages = function addMessages(messages) {
+
+            let newDomNode = (tag, cls, innerText) => {
+                let el = document.createElement(tag);
+                el.classList.add(cls);
+                if (innerText) {
+                    let innerTextEscaped = Utils.escapeHtml(innerText);
+                    let elText = document.createTextNode(innerTextEscaped);
+                    el.appendChild(elText);
+                }
+                return el;
+            }
+
             messages.forEach((message) => {
                 let time = new Date(message.timestamp * 1000);
                 let time_repr = ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2);
-                let html =
-                    '<div class="message" id="message">' +
-                    '    <div class="time">' + time_repr + '</div>' +
-                    '    <div class="user">' + message.username + ':</div>' +
-                    '    <div class="message">' + message.message +'</div>' +
-                    '</div>';
-                this.message_list.innerHTML += html;
-                $(this.message_list).stop().animate({ scrollTop: this.message_list.scrollHeight });
+
+                let el_container = newDomNode('div', 'message');
+
+                let el_time = newDomNode('div', 'time', time_repr);
+                let el_user = newDomNode('div', 'user', message.username + ':');
+                let el_message = newDomNode('div', 'message', message.message);
+
+                el_container.appendChild(el_time);
+                el_container.appendChild(el_user);
+                el_container.appendChild(el_message);
+
+                this.message_list.appendChild(el_container);
+                this.message_list.scrollTop = this.message_list.scrollHeight;
             });
         }
 
@@ -192,4 +211,4 @@
         });
     });
 
-})();
+})(Utils);

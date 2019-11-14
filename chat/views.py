@@ -16,20 +16,20 @@ from .models import Thread, ChatMessage
 
 @login_required
 def thread_messages(request, thread_id):
-    thread_messages = ChatMessage.objects.filter(thread_id=thread_id)
 
-    json_message = []
+    qs = ChatMessage.objects.filter(thread_id=thread_id)
+    values = qs.values_list('message', 'timestamp', 'user__username')
 
-    for message in thread_messages:
-        context = {
-            'message': message.message,
-            'timestamp': int(message.timestamp.timestamp()),
-            'username': message.user.username,
-        }
-        json_message.append(context)
+    thread_messages = []
+    for message, timestamp, username in values:
+        thread_messages.append({
+                'message': message,
+                'timestamp': int(timestamp.timestamp()),
+                'username': username,
+            })
 
     data = {
-        'thread_messages': json_message
+        'thread_messages': thread_messages,
     }
 
     return JsonResponse(data)
