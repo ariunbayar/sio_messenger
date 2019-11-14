@@ -33,6 +33,10 @@
     background-color: #eee;
     border-radius: 3px;
 }
+.messenger > .thread-list > ul.thread-list li span.last-message {
+    font-weight: 700;
+    font-size: .8em;
+}
 
 .messenger > .current-thread {
     display: table-cell;

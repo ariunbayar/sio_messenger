@@ -4,6 +4,7 @@
 
         function ThreadList(child_elements, fn_thread_selected) {
 
+            this.active_thread_id = null;
             this.active_child_element = null;
 
             this.child_elements = {};
@@ -22,7 +23,7 @@
             });
         }
 
-        ThreadList.prototype.activate = function (thread_id) {
+        ThreadList.prototype.activate = function activate(thread_id) {
 
             let child_element = this.child_elements[thread_id];
 
@@ -35,11 +36,30 @@
             }
             child_element.classList.add('active');
             this.active_child_element = child_element;
+            this.active_thread_id = thread_id;
 
             let thread_url = child_element.getAttribute('data-thread-history');
 
             this.on_thread_selected(thread_id, thread_url);
         };
+
+        ThreadList.prototype.setLatestMessages = function setLatestMessages(message_packs) {
+
+            message_packs.forEach((message_pack) => {
+
+                if (this.active_thread_id == message_pack.thread_id) return;
+
+                let el = this.child_elements[message_pack.thread_id];
+
+                let elLastMessage = el.querySelector('.last-message');
+                let lastMessage = message_pack.username + ': ' + message_pack.message;
+
+                elLastMessage.innerHTML = '';
+                elLastMessage.appendChild(Utils.domEscapedText(lastMessage));
+
+            });
+
+        }
 
         return ThreadList;
 
@@ -203,6 +223,7 @@
 
     let connection = new Connection((message_pack) => {
         chatbox.addMessages([message_pack]);
+        thread_list.setLatestMessages([message_pack]);
     });
 
     let chatbox = new ChatBox({
