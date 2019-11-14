@@ -61,6 +61,7 @@
 
             this.thread_id = null;
             this.on_send_message = config.on_send_message;
+            this.message_form = message_form;
             this.message_list = message_list;
 
         }
@@ -85,6 +86,10 @@
             while (this.message_list.firstChild) {
                 this.message_list.removeChild(this.message_list.firstChild);
             }
+        }
+
+        ChatBox.prototype.clearFormValues = function clearFormValues() {
+            this.message_form.reset();
         }
 
         ChatBox.prototype.addMessages = function addMessages(messages) {
@@ -206,6 +211,7 @@
     let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id, thread_url) => {
         chatbox.setThread(thread_id);
         chatbox.clearMessageList();
+        chatbox.clearFormValues();
         connection.loadHistory(thread_id, thread_url, (messages) => {
             chatbox.addMessages(messages);
         });
