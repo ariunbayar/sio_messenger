@@ -2,7 +2,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db.models import Q, Count
+from django.db.models import Q
 
 
 class ThreadManager(models.Manager):
@@ -42,21 +42,8 @@ class Thread(models.Model):
 
     objects      = ThreadManager()
 
-    @property
-    def room_group_name(self):
-        return f'chat_{self.id}'
-
-
-    def broadcast(self, msg=None):
-        if msg is not None:
-            broadcast_msg_to_chat(msg, group_name=self.room_group_name, user='admin')
-            return True
-        return False
-
-
     def thread_list_by_user(self, user):
         return self.objects.filter(users=user)
-
 
     def add_user(self, users):
         self.users.add(*users)

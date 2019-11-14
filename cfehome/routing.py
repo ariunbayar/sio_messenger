@@ -1,10 +1,8 @@
-from django.conf.urls import url
 from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from channels.security.websocket import AllowedHostsOriginValidator, OriginValidator
+from channels.security.websocket import AllowedHostsOriginValidator
 
-from chat.consumer import ThreadConsumer
 from chat.consumer import UserConsumer
 
 
@@ -14,7 +12,6 @@ application = ProtocolTypeRouter({
             URLRouter(
                 [
                     path("", UserConsumer),
-                    path("<int:thread_id>/", ThreadConsumer),
                 ]
             )
         )
