@@ -63,6 +63,11 @@
 
         }
 
+        ThreadList.prototype.setLastMessageSeen = function setLastMessageSeen(thread_id) {
+            let el = this.child_elements[thread_id];
+            el.querySelector('.last-message').innerHTML = '';
+        }
+
         return ThreadList;
 
     })();
@@ -241,6 +246,7 @@
         chatbox.clearFormValues();
         connection.loadHistory(thread_id, thread_url, (messages) => {
             chatbox.addMessages(messages);
+            thread_list.setLastMessageSeen(thread_id);
         });
     });
 
