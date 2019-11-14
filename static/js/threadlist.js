@@ -54,6 +54,8 @@
                 let elLastMessage = el.querySelector('.last-message');
                 let lastMessage = message_pack.username + ': ' + message_pack.message;
 
+                lastMessage = Utils.truncate(lastMessage, 45);
+
                 elLastMessage.innerHTML = '';
                 elLastMessage.appendChild(Utils.domEscapedText(lastMessage));
 
