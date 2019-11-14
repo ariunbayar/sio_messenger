@@ -106,6 +106,10 @@
             }
 
             messages.forEach((message) => {
+
+                if (this.thread_id === null) return;
+                if (this.thread_id != message.thread_id) return;
+
                 let time = new Date(message.timestamp * 1000);
                 let time_repr = ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2);
 

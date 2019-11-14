@@ -18,11 +18,12 @@ from .models import Thread, ChatMessage
 def thread_messages(request, thread_id):
 
     qs = ChatMessage.objects.filter(thread_id=thread_id)
-    values = qs.values_list('message', 'timestamp', 'user__username')
+    values = qs.values_list('thread_id', 'message', 'timestamp', 'user__username')
 
     thread_messages = []
-    for message, timestamp, username in values:
+    for thread_id, message, timestamp, username in values:
         thread_messages.append({
+                'thread_id': thread_id,
                 'message': message,
                 'timestamp': int(timestamp.timestamp()),
                 'username': username,
