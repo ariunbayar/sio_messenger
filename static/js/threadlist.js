@@ -1,5 +1,50 @@
 (function(Utils){
 
+    let UserList = (() => {
+
+        function UserList(config) {
+
+            let searchbox = document.querySelector(config.searchbox_selector);
+            let user_list = document.querySelectorAll(config.user_list_selector);
+            let user_list_title = document.querySelector(config.user_list_title_selector);
+
+            this.users = [];
+            this.user_list_title = user_list_title;
+
+            user_list.forEach((el) => {
+                this.users.push({
+                    user_id: parseInt(el.getAttribute('data-id')),
+                    search_text: el.getAttribute('data-search'),
+                    element: el
+                });
+            });
+
+            searchbox.addEventListener('keydown', (e) => {
+                let search = e.target.value + e.key;
+                this.filter(search);
+            });
+
+            this.onUserSelected = config.onUserSelected;
+        }
+
+        UserList.prototype.filter = function filter(search) {
+
+            let isFound = false;
+
+            this.users.forEach((user) => {
+                var start = user.search_text.toLowerCase().indexOf(search.toLowerCase());
+                user.element.classList.toggle('hidden', start === -1);
+                isFound = isFound || start > -1;
+            });
+
+            this.user_list_title.classList.toggle('hidden', !isFound);
+
+        }
+
+        return UserList;
+
+    })();
+
     let ThreadList = (() => {
 
         function ThreadList(child_elements, fn_thread_selected) {
@@ -248,6 +293,13 @@
             chatbox.addMessages(messages);
             thread_list.setLastMessageSeen(thread_id);
         });
+    });
+
+    let user_list = new UserList({
+        searchbox_selector: '.messenger > .thread-list >#user-search',
+        user_list_selector: '.messenger > .thread-list > ul.user-list > li',
+        user_list_title_selector: '.messenger > .thread-list > .user-list-title',
+        onUserSelected: () => {}
     });
 
 })(Utils);

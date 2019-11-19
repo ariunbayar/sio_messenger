@@ -6,8 +6,18 @@
 
     <div class="thread-list">
 
+        <input type="text" class="form-control" id="user-search" placeholder="Search users">
+
         <button class="btn btn-secondary create-thread" type="button"> + </button>
 
+        <h5 class="user-list-title hidden">Users</h5>
+        <ul class="user-list hidden">
+            {% for user_detail in user_details %}
+            <li class="hidden" data-id="{{ user_detail.pk }}" data-search="{{ user_detail.username }}"> {{ user_detail.username }} </li>
+            {% endfor %}
+        </ul>
+
+        <h5 class="thread-list-title">Threads</h5>
         <ul class="thread-list">
             {% for thread in threadListByUser %}
                 <li data-thread-id="{{ thread.id }}" data-thread-history="{% url "thread-messages" thread.id %}">
@@ -23,7 +33,7 @@
         <div id="chat-messages">
         </div>
         <form id="form" method='POST'>
-            <input type="text" id="chatmessage"/>
+            <input type="text" id="chatmessage" class="form-control"/>
             <input type='submit' id="chatsend" class='btn btn-primary' value="send"/>
         </form>
     </div>

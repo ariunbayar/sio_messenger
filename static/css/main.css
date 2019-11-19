@@ -17,6 +17,28 @@
     width: 200px;
 }
 
+.messenger > .thread-list > .user-list-title {
+    font-weight: 700;
+    font-size: .8em;
+    text-transform: uppercase;
+    color: #aeaeae;
+}
+.messenger > .thread-list > ul.user-list {
+    list-style: none;
+    padding: 0;
+}
+.messenger > .thread-list > ul.user-list li {
+    border-bottom: 1px solid #eee;
+    padding: .4em;
+}
+
+.messenger > .thread-list > .thread-list-title {
+    font-weight: 700;
+    font-size: .8em;
+    text-transform: uppercase;
+    color: #aeaeae;
+}
+
 .messenger > .thread-list > .thread {
 }
 
@@ -68,4 +90,8 @@
     display: table-cell;
     width: 200px;
 
+}
+
+.hidden {
+    display: none;
 }
