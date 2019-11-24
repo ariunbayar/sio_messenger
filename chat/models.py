@@ -9,7 +9,7 @@ class ThreadManager(models.Manager):
 
     def get_or_new(self, user, other_user): # get_or_create
         if user == other_user:
-            return None
+            return None, False
         lookupByUser = Q(users=user) & Q(users=other_user)
         qs = self.get_queryset().filter(lookupByUser)
         qs = qs.filter(users_count=2)
@@ -19,14 +19,13 @@ class ThreadManager(models.Manager):
         elif qs.count() > 1:
             return qs.order_by('updated_at').first(), False
         else:
-            if user != other_user:
-                obj = self.model(
-                        owner=user,
-                    )
-                obj.save()
-                obj.add_user([other_user, user])
-                return obj, True
-            return None, False
+            obj = self.model(
+                    owner=user,
+                )
+            obj.save()
+            obj.name = str(obj.pk)  # XXX for debugging purposes only
+            obj.add_user([other_user, user])
+            return obj, True
 
 
 class Thread(models.Model):

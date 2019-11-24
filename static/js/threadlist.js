@@ -72,7 +72,7 @@
 
     let ThreadList = (() => {
 
-        function ThreadList(child_elements, fn_thread_selected) {
+        function ThreadList(container_selector, fn_thread_selected) {
 
             this.active_thread_id = null;
             this.active_child_element = null;
@@ -81,7 +81,9 @@
 
             this.on_thread_selected = fn_thread_selected;
 
-            document.querySelectorAll(child_elements).forEach((child_element) => {
+            this.container = document.querySelector(container_selector);
+
+            Array.from(this.container.children).forEach((child_element) => {
 
                 let thread_id = parseInt(child_element.getAttribute('data-thread-id'));
                 this.child_elements[thread_id] = child_element;
@@ -91,6 +93,25 @@
                 });
 
             });
+        }
+
+        ThreadList.prototype.create = function create(thread_detail) {
+
+            let attrs = {
+                'data-thread-id': thread_detail.id,
+                'data-thread-history': thread_detail.url,
+            }
+            let thread_item = Utils.domEl('li', attrs, thread_detail.name);
+
+            this.container.appendChild(thread_item);
+
+            thread_item.appendChild(Utils.domEl('div', {'class': 'last-message'}));
+
+            this.child_elements[thread_detail.id] = thread_item;
+            thread_item.addEventListener('click', (e) => {
+                this.activate(thread_detail.id);
+            });
+
         }
 
         ThreadList.prototype.activate = function activate(thread_id) {
@@ -157,6 +178,7 @@
             });
 
             this.thread_id = null;
+            this.user_ids = [];
             this.on_send_message = config.on_send_message;
             this.message_form = message_form;
             this.message_list = message_list;
@@ -165,11 +187,20 @@
 
         ChatBox.prototype.sendMessage = function sendMessage(message) {
 
-            if (this.thread_id === null) {
+            if (this.thread_id === null && this.user_ids.length == 0) {
                 return;
             }
 
-            this.on_send_message(this.thread_id, message);
+            this.on_send_message(this.thread_id, this.user_ids, message);
+
+        }
+
+        ChatBox.prototype.newGroupChat = function newGroupChat(user_ids) {
+
+            this.clearMessageList();
+            this.clearFormValues();
+            this.thread_id = null;
+            this.user_ids = user_ids;
 
         }
 
@@ -264,6 +295,19 @@
 
         }
 
+        Connection.prototype.threadCreate = function threadCreate(user_ids, message) {
+
+            var user_message_pack = {
+                    'action': 'thread_create',
+                    'params': {
+                        'user_ids': user_ids,
+                        'message': message,
+                    }
+                }
+            this.socket.send(JSON.stringify(user_message_pack));
+
+        }
+
         Connection.prototype.onSocketOpen = function onSocketOpen(e) {
             console.log('socket opened', e);
         }
@@ -298,19 +342,35 @@
     })();
 
 
-    let connection = new Connection((message_pack) => {
-        chatbox.addMessages([message_pack]);
-        thread_list.setLatestMessages([message_pack]);
+    let connection = new Connection((server_message) => {
+
+        if (server_message.action == 'thread_message') {
+
+            chatbox.addMessages([server_message]);
+            thread_list.setLatestMessages([server_message]);
+
+        } else if (server_message.action == 'thread_create') {
+
+            thread_list.create(server_message);
+
+        }
+
     });
 
     let chatbox = new ChatBox({
             message_form_selector: "#form",
             message_field_selector: "#chatmessage",
             message_list_selector: "#chat-messages",
-            on_send_message: (thread_id, message) => connection.sendMessage(thread_id, message)
+            on_send_message: (thread_id, user_ids, message) => {
+                if (thread_id) {
+                    connection.sendMessage(thread_id, message);
+                } else if (user_ids.length) {
+                    connection.threadCreate(user_ids, message);
+                }
+            }
         });
 
-    let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list > li', (thread_id, thread_url) => {
+    let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list', (thread_id, thread_url) => {
         chatbox.setThread(thread_id);
         chatbox.clearMessageList();
         chatbox.clearFormValues();
@@ -325,7 +385,7 @@
         user_list_selector: '.messenger > .thread-list > ul.user-list',
         user_list_title_selector: '.messenger > .thread-list > .user-list-title',
         onUserSelected: (user_id) => {
-            console.log('Selected user: ' + user_id);
+            chatbox.newGroupChat([user_id]);
         }
     });
 

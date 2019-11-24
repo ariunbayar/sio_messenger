@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
 from channels.exceptions import StopConsumer
@@ -38,6 +39,7 @@ class UserConsumer(AsyncConsumer):
     async def broadcast_chat_message(self, chat_message):
 
         message_pack = {
+            'action': 'thread_message',
             'thread_id': chat_message.thread.pk,
             'username': chat_message.user.username,
             'message' : chat_message.message,
@@ -49,6 +51,23 @@ class UserConsumer(AsyncConsumer):
                 {
                     "type": "chat_message",
                     "text": json.dumps(message_pack)
+                }
+            )
+
+    async def broadcast_thread_create(self, thread):
+
+        thread_detail = {
+            'action': 'thread_create',
+            'id': thread.pk,
+            'url': reverse('thread-messages', args=[thread.pk]),
+            'name' : thread.name,
+        }
+
+        await self.channel_layer.group_send(
+                thread.get_chat_room_name(),
+                {
+                    "type": "chat_message",
+                    "text": json.dumps(thread_detail)
                 }
             )
 
@@ -81,42 +100,44 @@ class UserConsumer(AsyncConsumer):
                 user_id=user_id,
                 created_at__gte=created_since
             )
-        return qs_filter.values_list('channel_name', flat=True)
+        return list(qs_filter.values_list('channel_name', flat=True))
 
-    async def action_user_message(self, data):
+    async def action_thread_create(self, data):
         """
         data: {
-                user_id: <user_id_dst>,
-                message: <message>,
+                user_ids: <user_ids>,
+                message: <message>
             }
         """
 
         # sanitize and validate
 
-        user_id_dst = data.get('user_id')
-        user_dst = await self.get_user(user_id_dst)
-        if not user_dst:
+        dst_user_ids = data.get('user_ids')
+        dst_users = await self.get_users(dst_user_ids)
+        if not dst_users:
             # TODO Destination user must be specified. Respond via socket or notify admin?
             return
-        user_src = await self.get_authenticated_user()
+        src_user = await self.get_authenticated_user()
 
         message = data.get('message')
         if not message:
             # TODO must not allow empty message. Respond via socket or notify admin?
             return
 
-        # subscribe both user's channels to the group
+        # subscribe all user's channels to the group, including source user
 
-        thread = await self.get_thread_for(user_src, user_dst)
-        channel_names = await self.get_user_channel_names(user_src) + await self.get_user_channel_names(user_dst)
+        thread, is_created = await self.get_thread_for(src_user, dst_users)
+        if is_created:
+            user_channels = [await self.get_user_channel_names(u.pk) for u in [src_user] + dst_users]
+            channel_names = [channel for user_channel in user_channels for channel in user_channel]
+            for channel_name in channel_names:
+                await self.channel_layer.group_add(
+                    thread.get_chat_room_name(),
+                    channel_name
+                )
 
-        for channel_name in channel_names:
-            await self.channel_layer.group_add(
-                thread.get_chat_room_name(),
-                channel_name
-            )
-
-        chat_message = await self.create_chat_message(thread, user_src, message)
+        chat_message = await self.create_chat_message(thread, src_user, message)
+        await self.broadcast_thread_create(thread)
         await self.broadcast_chat_message(chat_message)
 
     async def websocket_receive(self, event):
@@ -131,11 +152,11 @@ class UserConsumer(AsyncConsumer):
             }
         }
 
-        When sending message to specific user:
+        When creating thread for multiple users:
         {
-            action: 'user_message',
+            action: 'thread_create',
             params: {
-                user_id: <user_id_dst>,
+                user_ids: <user_ids>,
                 message: <message>,
             }
         }
@@ -155,8 +176,8 @@ class UserConsumer(AsyncConsumer):
         if action == 'thread_message':
             await self.action_thread_message(params)
 
-        if action == 'user_message':
-            await self.action_user_message(params)
+        if action == 'thread_create':
+            await self.action_thread_create(params)
 
     async def chat_message(self, event):
         # send the actual message
@@ -186,25 +207,23 @@ class UserConsumer(AsyncConsumer):
         raise StopConsumer()
 
     @database_sync_to_async
-    def get_user(self, pk):
+    def get_users(self, pk_list):
         User = get_user_model()
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            user = None
+        users = User.objects.filter(pk__in=pk_list)
 
-        return user
+        return list(users)
 
     @database_sync_to_async
-    def get_thread_for(self, users):
-        if len(users) == 2:
-            thread = Thread.objects.get_or_new(*users)
+    def get_thread_for(self, user_owner, users):
+        if len(users) == 1:
+            thread, is_created = Thread.objects.get_or_new(user_owner, users[0])
         else:
             # TODO notify admin or implement
             print('[ERROR] Group chat with 2+ users is not supported')
             thread = None
+            is_created = False
 
-        return thread
+        return thread, is_created
 
     @database_sync_to_async
     def get_threads_by_user(self, user):
