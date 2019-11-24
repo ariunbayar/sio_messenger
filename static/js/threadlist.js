@@ -5,10 +5,12 @@
         function UserList(config) {
 
             let searchbox = document.querySelector(config.searchbox_selector);
-            let user_list = document.querySelectorAll(config.user_list_selector);
+            let user_list_container = document.querySelector(config.user_list_selector);
+            let user_list = Array.from(user_list_container.children);
             let user_list_title = document.querySelector(config.user_list_title_selector);
 
             this.users = [];
+            this.user_list_container = user_list_container;
             this.user_list_title = user_list_title;
 
             user_list.forEach((el) => {
@@ -38,6 +40,7 @@
             });
 
             this.user_list_title.classList.toggle('hidden', !isFound);
+            this.user_list_container.classList.toggle('hidden', !isFound);
 
         }
 
@@ -297,7 +300,7 @@
 
     let user_list = new UserList({
         searchbox_selector: '.messenger > .thread-list >#user-search',
-        user_list_selector: '.messenger > .thread-list > ul.user-list > li',
+        user_list_selector: '.messenger > .thread-list > ul.user-list',
         user_list_title_selector: '.messenger > .thread-list > .user-list-title',
         onUserSelected: () => {}
     });
