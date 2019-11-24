@@ -33,7 +33,8 @@ def threadlist(request):
 
     threadListByUser = Thread.objects.filter(users=request.user)
 
-    user_details = get_user_model().objects.all().order_by('username').values_list('pk', 'username', named=True)
+    user_qs = get_user_model().objects.exclude(pk=request.user.pk)
+    user_details = user_qs.order_by('username').values_list('pk', 'username', named=True)
 
     context = {
         'threadListByUser': threadListByUser,
