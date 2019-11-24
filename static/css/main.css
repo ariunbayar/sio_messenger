@@ -30,6 +30,7 @@
 .messenger > .thread-list > ul.user-list li {
     border-bottom: 1px solid #eee;
     padding: .4em;
+    cursor: pointer;
 }
 
 .messenger > .thread-list > .thread-list-title {
@@ -49,6 +50,7 @@
 .messenger > .thread-list > ul.thread-list li {
     border-bottom: 1px solid #eee;
     padding: .4em;
+    cursor: pointer;
 }
 .messenger > .thread-list > ul.thread-list li.active {
     font-weight: 700;

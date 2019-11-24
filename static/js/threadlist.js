@@ -13,20 +13,42 @@
             this.user_list_container = user_list_container;
             this.user_list_title = user_list_title;
 
+            this.onUserSelected = config.onUserSelected;
+
             user_list.forEach((el) => {
                 this.users.push({
                     user_id: parseInt(el.getAttribute('data-id')),
                     search_text: el.getAttribute('data-search'),
                     element: el
                 });
+                el.addEventListener('click', (e) => {
+                    let user_id = parseInt(e.target.getAttribute('data-id'));
+                    this.onUserSelected(user_id);
+                })
             });
+
+            this.searchTimeout = 0;
 
             searchbox.addEventListener('keydown', (e) => {
-                let search = e.target.value + e.key;
-                this.filter(search);
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+                setTimeout(() => {
+                    let val = e.target.value;
+                    if (val && val.length > 1) {
+                        this.filter(val);
+                    } else {
+                        this.hide();
+                    }
+                }, 350);
             });
+        }
 
-            this.onUserSelected = config.onUserSelected;
+        UserList.prototype.hide = function hide() {
+
+            this.user_list_title.classList.toggle('hidden', true);
+            this.user_list_container.classList.toggle('hidden', true);
+
         }
 
         UserList.prototype.filter = function filter(search) {
@@ -302,7 +324,9 @@
         searchbox_selector: '.messenger > .thread-list >#user-search',
         user_list_selector: '.messenger > .thread-list > ul.user-list',
         user_list_title_selector: '.messenger > .thread-list > .user-list-title',
-        onUserSelected: () => {}
+        onUserSelected: (user_id) => {
+            console.log('Selected user: ' + user_id);
+        }
     });
 
 })(Utils);
