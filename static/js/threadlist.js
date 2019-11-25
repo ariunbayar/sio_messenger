@@ -380,6 +380,7 @@
         connection.loadHistory(thread_id, thread_url, (messages) => {
             chatbox.addMessages(messages);
             thread_list.setLastMessageSeen(thread_id);
+            user_list.hide();
         });
     });
 
@@ -389,6 +390,7 @@
         user_list_title_selector: '.messenger > .thread-list > .user-list-title',
         onUserSelected: (user_id) => {
             chatbox.setThread(null, [user_id]);
+            user_list.hide();
         }
     });
 
