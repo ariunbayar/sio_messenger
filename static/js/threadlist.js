@@ -12,6 +12,7 @@
             this.users = [];
             this.user_list_container = user_list_container;
             this.user_list_title = user_list_title;
+            this.searchbox = searchbox;
 
             this.onUserSelected = config.onUserSelected;
 
@@ -48,6 +49,12 @@
 
             this.user_list_title.classList.toggle('hidden', true);
             this.user_list_container.classList.toggle('hidden', true);
+
+        }
+
+        UserList.prototype.clear = function clear() {
+
+            this.searchbox.value = '';
 
         }
 
@@ -381,6 +388,7 @@
             chatbox.addMessages(messages);
             thread_list.setLastMessageSeen(thread_id);
             user_list.hide();
+            user_list.clear();
         });
     });
 
@@ -391,6 +399,7 @@
         onUserSelected: (user_id) => {
             chatbox.setThread(null, [user_id]);
             user_list.hide();
+            user_list.clear();
         }
     });
 
