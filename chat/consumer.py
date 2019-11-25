@@ -36,7 +36,7 @@ class UserConsumer(AsyncConsumer):
             "type": "websocket.accept"
         })
 
-    async def broadcast_chat_message(self, chat_message):
+    async def broadcast_chat_message(self, chat_message, excluded_user=None):
 
         message_pack = {
             'action': 'thread_message',
@@ -46,13 +46,29 @@ class UserConsumer(AsyncConsumer):
             'timestamp': int(chat_message.timestamp.timestamp()),
         }
 
-        await self.channel_layer.group_send(
-                chat_message.thread.get_chat_room_name(),
-                {
-                    "type": "chat_message",
-                    "text": json.dumps(message_pack)
-                }
-            )
+        if excluded_user:
+
+            dst_users = [u for u in chat_message.thread.users.all() if u.pk != excluded_user.pk]
+
+            channel_names = await self.get_user_channel_names(dst_users)
+            for channel_name in channel_names:
+                await self.channel_layer.send(
+                        channel_name,
+                        {
+                            "type": "chat_message",
+                            "text": json.dumps(message_pack)
+                        }
+                    )
+
+        else:
+
+            await self.channel_layer.group_send(
+                    chat_message.thread.get_chat_room_name(),
+                    {
+                        "type": "chat_message",
+                        "text": json.dumps(message_pack)
+                    }
+                )
 
     async def broadcast_thread_create(self, thread):
 
@@ -94,10 +110,10 @@ class UserConsumer(AsyncConsumer):
         await self.broadcast_chat_message(chat_message)
 
     @database_sync_to_async
-    def get_user_channel_names(self, user_id, expiry=86400):
+    def get_user_channel_names(self, users, expiry=86400):
         created_since = datetime.now() - timedelta(seconds=expiry)
         qs_filter = UserChannel.objects.filter(
-                user_id=user_id,
+                user__in=users,
                 created_at__gte=created_since
             )
         return list(qs_filter.values_list('channel_name', flat=True))
@@ -128,8 +144,7 @@ class UserConsumer(AsyncConsumer):
 
         thread, is_created = await self.get_thread_for(src_user, dst_users)
         if is_created:
-            user_channels = [await self.get_user_channel_names(u.pk) for u in [src_user] + dst_users]
-            channel_names = [channel for user_channel in user_channels for channel in user_channel]
+            channel_names = await self.get_user_channel_names([src_user] + dst_users)
             for channel_name in channel_names:
                 await self.channel_layer.group_add(
                     thread.get_chat_room_name(),
@@ -138,7 +153,7 @@ class UserConsumer(AsyncConsumer):
 
         chat_message = await self.create_chat_message(thread, src_user, message)
         await self.broadcast_thread_create(thread)
-        await self.broadcast_chat_message(chat_message)
+        await self.broadcast_chat_message(chat_message, excluded_user=src_user)
 
     async def websocket_receive(self, event):
 

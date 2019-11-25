@@ -181,6 +181,7 @@
             this.user_ids = [];
             this.on_send_message = config.on_send_message;
             this.message_form = message_form;
+            this.message_field = message_field;
             this.message_list = message_list;
 
         }
@@ -195,18 +196,14 @@
 
         }
 
-        ChatBox.prototype.newGroupChat = function newGroupChat(user_ids) {
+        ChatBox.prototype.setThread = function setThread(thread_id, user_ids) {
+
+            this.thread_id = thread_id;
+            this.user_ids = user_ids || [];
 
             this.clearMessageList();
             this.clearFormValues();
-            this.thread_id = null;
-            this.user_ids = user_ids;
-
-        }
-
-        ChatBox.prototype.setThread = function setThread(thread_id) {
-
-            this.thread_id = thread_id;
+            this.focus();
 
         }
 
@@ -218,6 +215,10 @@
 
         ChatBox.prototype.clearFormValues = function clearFormValues() {
             this.message_form.reset();
+        }
+
+        ChatBox.prototype.focus = function focus() {
+            this.message_field.focus();
         }
 
         ChatBox.prototype.addMessages = function addMessages(messages) {
@@ -352,6 +353,10 @@
         } else if (server_message.action == 'thread_create') {
 
             thread_list.create(server_message);
+            let is_waiting_created_thread = chatbox.thread_id === null && chatbox.user_ids.length;
+            if (is_waiting_created_thread) {
+                thread_list.activate(server_message.id);
+            }
 
         }
 
@@ -372,8 +377,6 @@
 
     let thread_list = new ThreadList('.messenger > .thread-list > ul.thread-list', (thread_id, thread_url) => {
         chatbox.setThread(thread_id);
-        chatbox.clearMessageList();
-        chatbox.clearFormValues();
         connection.loadHistory(thread_id, thread_url, (messages) => {
             chatbox.addMessages(messages);
             thread_list.setLastMessageSeen(thread_id);
@@ -385,7 +388,7 @@
         user_list_selector: '.messenger > .thread-list > ul.user-list',
         user_list_title_selector: '.messenger > .thread-list > .user-list-title',
         onUserSelected: (user_id) => {
-            chatbox.newGroupChat([user_id]);
+            chatbox.setThread(null, [user_id]);
         }
     });
 
