@@ -31,7 +31,7 @@ def thread_messages(request, thread_id):
 @login_required
 def threadlist(request):
 
-    threadListByUser = Thread.objects.filter(users=request.user)
+    threadListByUser = Thread.objects.threads_by_user(request.user, prefetch_exclude_user=request.user)
 
     user_qs = get_user_model().objects.exclude(pk=request.user.pk)
     user_details = user_qs.order_by('username').values_list('pk', 'username', named=True)

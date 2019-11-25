@@ -21,6 +21,17 @@
         <ul class="thread-list">
             {% for thread in threadListByUser %}
                 <li data-thread-id="{{ thread.id }}" data-thread-history="{% url "thread-messages" thread.id %}">
+                    {% if thread.users_count == 2 %}
+                    <div class="image">
+                        {% if thread.users.all.first.profile.image %}
+                        <img src="{{ MEDIA_URL }}{{ thread.users.all.first.profile.image }}"/>
+                        {% else %}
+                        {% comment %}TODO{% endcomment %}
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    {% comment %}TODO{% endcomment %}
+                    {% endif %}
                      {{ thread.id }}
                      <div class="last-message"></div>
                 </li>

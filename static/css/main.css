@@ -40,9 +40,6 @@
     color: #aeaeae;
 }
 
-.messenger > .thread-list > .thread {
-}
-
 .messenger > .thread-list > ul.thread-list {
     list-style: none;
     padding: 0;
@@ -56,6 +53,17 @@
     font-weight: 700;
     background-color: #eee;
     border-radius: 3px;
+}
+.messenger > .thread-list > ul.thread-list li > .image {
+    display: inline-block;
+    width: 36px;
+    margin-right: 4px;
+    border-radius: 18px;
+    overflow: hidden;
+    vertical-align: top;
+}
+.messenger > .thread-list > ul.thread-list li > .image > img {
+    width: 36px;
 }
 .messenger > .thread-list > ul.thread-list li .last-message {
     font-weight: 700;

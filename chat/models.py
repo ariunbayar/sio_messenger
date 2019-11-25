@@ -1,7 +1,8 @@
 from django.db import models
 
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
 from django.db.models import Q
 
 
@@ -27,10 +28,17 @@ class ThreadManager(models.Manager):
             obj.add_user([other_user, user])
             return obj, True
 
+    def threads_by_user(self, user, prefetch_exclude_user=None):
+        qs = self.get_queryset().filter(users=user)
+        if prefetch_exclude_user:
+            qs_user_excluded = get_user_model().objects.exclude(pk=prefetch_exclude_user.pk)
+            qs = qs.prefetch_related(Prefetch('users', queryset=qs_user_excluded))
+        return qs
+
 
 class Thread(models.Model):
-    owner           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_owner')
-    users           = models.ManyToManyField(User, related_name='chat_users')
+    owner           = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='chat_owner')
+    users           = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='chat_users')
     users_count     = models.IntegerField(default=0)
     name            = models.CharField(max_length=200, null=True)
     password        = models.CharField(max_length=50, null=True)
@@ -40,9 +48,6 @@ class Thread(models.Model):
     created_at      = models.DateTimeField(auto_now_add=True)
 
     objects      = ThreadManager()
-
-    def thread_list_by_user(self, user):
-        return self.objects.filter(users=user)
 
     def add_user(self, users):
         self.users.add(*users)
@@ -62,7 +67,7 @@ class ChatMessage(models.Model):
 
 
 class UserChannel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # Length is 30, according to channel_redis.core.RedisChannelLayer.new_channel
     # 64 = 30 + 34. We reserved 34 char for later use.
     channel_name = models.CharField(max_length=64, db_index=True)
