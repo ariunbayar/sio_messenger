@@ -13,14 +13,14 @@
         <h5 class="user-list-title hidden">Users</h5>
         <ul class="user-list hidden">
             {% for user_detail in user_details %}
-            <li class="hidden" data-id="{{ user_detail.pk }}" data-search="{{ user_detail.username }}">
+            <li class="hidden" data-id="{{ user_detail.pk }}" data-search="{{ user_detail.first_name }} {{ user_detail.username }} {{ user_detail.last_name }}">
                 <div class="image">
                     {% if user_detail.profile__image %}
                     <img src="{{ MEDIA_URL }}{{ user_detail.profile__image }}"/>
                     {% endif %}
                 </div>
-                {{ user_detail.username }}
-
+                {{ user_detail.first_name }}
+                {{ user_detail.last_name }}
             </li>
             {% endfor %}
         </ul>
@@ -40,8 +40,15 @@
                     {% else %}
                     {% comment %}TODO{% endcomment %}
                     {% endif %}
-                     {{ thread.id }}
-                     <div class="last-message"></div>
+
+                    {% if thread.users_count == 2 %}
+                        {{ thread.users.all.first.first_name }}
+                        {{ thread.users.all.first.last_name }}
+                    {% else %}
+                    {% comment %}TODO{% endcomment %}
+                    {{ thread.id }}
+                    {% endif %}
+                    <div class="last-message"></div>
                 </li>
             {% endfor %}
         </ul>
