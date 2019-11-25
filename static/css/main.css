@@ -32,6 +32,17 @@
     padding: .4em;
     cursor: pointer;
 }
+.messenger > .thread-list > ul.user-list li > .image {
+    display: inline-block;
+    width: 36px;
+    margin-right: 4px;
+    border-radius: 18px;
+    overflow: hidden;
+    vertical-align: top;
+}
+.messenger > .thread-list > ul.user-list li > .image > img {
+    width: 36px;
+}
 
 .messenger > .thread-list > .thread-list-title {
     font-weight: 700;
