@@ -22,13 +22,14 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            {% with request.resolver_match.url_name as route %}
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item {% if route == "threadlist" %}active{% endif %}">
                     <a class="nav-link" href="/"> Нүүр хуудас </a>
                 </li>
                 {% if request.user.is_authenticated %}
-                <li>
-                    <a class="nav-link" href="/"> {{request.user.username}} </a>
+                <li class="nav-item {% if route == "user-profile" %}active{% endif %}">
+                    <a class="nav-link" href="{% url "user-profile" %}"> {{request.user.username}} </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url "secure-logout" %}"> Гарах </a>
@@ -39,6 +40,7 @@
                 </li>
                 {% endif %}
             </ul>
+            {% endwith %}
         </div>
     </nav>
 

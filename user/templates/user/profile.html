@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="POST" action="" class="form" enctype="multipart/form-data">{% csrf_token %}
+
+    {% if error %}
+    <div class="alert alert-warning" role="alert">
+        {{error}}
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        {% if profile.image %}
+        <div>
+            <img src="{{ MEDIA_URL }}{{ profile.image }}"/>
+        </div>
+        {% endif %}
+        <label for="{{ form.image.auto_id }}"> Зураг: </label>
+        <input type="file" class="form-control-file {% if form.image.errors %}is-invalid{% endif %}" name="{{ form.image.name }}" id="{{ form.image.auto_id }}"/>
+        {% for error in form.image.errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.first_name.auto_id }}"> First name: </label>
+        <input type="text" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" name="{{ form.first_name.name }}" id="{{ form.first_name.auto_id }}" value="{{ form.first_name.value }}"/>
+        {% for error in form.first_name.errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.last_name.auto_id }}"> Last name: </label>
+        <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" name="{{ form.last_name.name }}" id="{{ form.last_name.auto_id }}" value="{{ form.last_name.value }}"/>
+        {% for error in form.last_name.errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.email.auto_id }}"> Email: </label>
+        <input type="text" class="form-control {% if form.email.errors %}is-invalid{% endif %}" name="{{ form.email.name }}" id="{{ form.email.auto_id }}" value="{{ form.email.value }}"/>
+        {% for error in form.email.errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary"> Хадгалах </button>
+
+</form>
+{% endblock %}
